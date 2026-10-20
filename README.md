@@ -22,6 +22,7 @@ Free, with no account. Mac, Windows and Linux downloads are on the [releases pag
 | Platform | Get it | Notes |
 |---|---|---|
 | macOS 13 or later, Apple silicon or Intel | `Beamer-<version>.dmg` | One universal app, signed and notarised by Apple |
+| macOS 10.15 Catalina to 12 | Build from this fork's source, see Building from source under [In detail](#in-detail) | Not covered by the signed releases |
 | Windows 10 and 11 | `Beamer-Setup-<version>.exe` | Not code-signed; see step 1 below |
 | Linux, 64-bit x86 and arm64 (Flatpak) | [Install from the Kalkman Code repository](https://flatpak.kalkmancode.co.uk/beamer.flatpakref); `Beamer-<version>-x86_64.flatpak` and `Beamer-<version>-aarch64.flatpak` are available as an offline alternative | Tested on Fedora 44 GNOME under Wayland; KDE Plasma is experimental and not yet tested on real hardware; X11 is not yet verified |
 
@@ -454,6 +455,11 @@ use a completely exposed monitor edge. The Flatpak's start-at-sign-in toggle rem
 On the Mac, double-click `mac_app/Install-Beamer-Mac.command`. It builds a self-contained app,
 installs it at `/Applications/Beamer.app`, and leaves it closed so the permission prompts do not
 appear unexpectedly.
+
+The build needs the Xcode Command Line Tools (`xcode-select --install`) and Python 3.10 or later
+as `python3`; the python.org installer for Python 3.13 runs on macOS 10.13 and later. The app it
+builds runs on macOS 10.15 Catalina and later. On macOS 10.15, start at login uses a LaunchAgent in
+`~/Library/LaunchAgents`, and the settings sidebar shows its pages without icons.
 
 On Windows, run `win_app\Install-Beamer.ps1` from an admin PowerShell. It builds and installs
 `%LOCALAPPDATA%\Beamer\Beamer.exe`, adds a Start menu shortcut and the two firewall rules. From a
