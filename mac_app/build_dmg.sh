@@ -214,6 +214,10 @@ codesign -dvv "$APP" 2>&1 | grep -E '^(Identifier|Signature|Authority|Timestamp|
 # own tools, which the public source does not carry; a build from that source says so and goes on.
 PROBE="$PROJECT_DIR/tools/runtime_probe.py"
 
+entitlements_of() {
+    codesign -d --entitlements - --xml "$1" 2>/dev/null || codesign -d --entitlements - "$1" 2>/dev/null
+}
+
 # dyld aborts a python whose Python.framework library validation refuses before Python starts,
 # which leaves a crash report and its dialog on the desktop of whoever is at this Mac (two on
 # 14-10-2026). Validation passes when python carries disable-library-validation or both carry the
@@ -221,7 +225,7 @@ PROBE="$PROJECT_DIR/tools/runtime_probe.py"
 probe_loads() {
     local python="$1/Contents/MacOS/python" framework team_python team_framework
     framework=("$1/Contents/Frameworks/Python.framework/Versions/"[0-9]*)
-    if codesign -d --entitlements - --xml "$python" 2>/dev/null | grep -F disable-library-validation >/dev/null; then
+    if entitlements_of "$python" | grep -F disable-library-validation >/dev/null; then
         return 0
     fi
     team_python="$(codesign -dv "$python" 2>&1 | sed -n 's/^TeamIdentifier=//p')"
