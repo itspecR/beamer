@@ -39,6 +39,7 @@ import gestures
 import hardware_mac
 import ignored_titles
 import keyboard_layout
+import listen_access
 import notch_beam
 import previews
 import symbols
@@ -176,7 +177,7 @@ def accessibility_granted():
 
 
 def input_monitoring_granted():
-    return bool(Quartz.CGPreflightListenEventAccess())
+    return listen_access.granted()
 
 
 def acquire_instance_lock():
@@ -4690,7 +4691,7 @@ class ControlWindow(AppKit.NSObject):
         self.refresh()
 
     def requestInputMonitoring_(self, _sender):
-        Quartz.CGRequestListenEventAccess()
+        listen_access.request()
         self.refresh()
 
     def relaunch_(self, _sender):
