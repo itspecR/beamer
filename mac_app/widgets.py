@@ -18,6 +18,7 @@ import objc
 
 import media_keys
 import motion
+import symbols
 import theme
 from core.i18n import N_, tr
 from ignored_titles import is_modifier_release, recorded_entry
@@ -2125,7 +2126,7 @@ class Sidebar:
         list_stack = stack(spacing=2)
         rows.addSubview_(list_stack)
         pin(list_stack, rows)
-        symbol_size = AppKit.NSImageSymbolConfiguration.configurationWithPointSize_weight_(13, AppKit.NSFontWeightRegular)
+        symbol_size = symbols.configuration(13, AppKit.NSFontWeightRegular)
         self.rows = {}
         self.row_insets = []
         self.row_widths = []
@@ -2141,8 +2142,10 @@ class Sidebar:
             row_width = row.widthAnchor().constraintEqualToAnchor_(self.view.widthAnchor())
             self.row_widths.append(row_width)
             icon = size(_autolayout(AppKit.NSImageView.alloc().init()), 18, 18)
-            icon.setImage_(AppKit.NSImage.imageWithSystemSymbolName_accessibilityDescription_(symbol, None))
-            icon.setSymbolConfiguration_(symbol_size)
+            icon.setImage_(symbols.image(symbol))
+            if symbol_size is not None:
+                icon.setSymbolConfiguration_(symbol_size)
+            icon.setHidden_(not symbols.available())
             words = Label(name, theme.TYPE["body"], ink="ink_2")
             squeeze(words.view)
             dot = size(box(radius=3), 6, 6)
@@ -2190,7 +2193,7 @@ class Sidebar:
             # sidebar and wrapped onto a third line at the default window width at 14.
             pin(footer_label_view.view, footer, (8, 16, 8, 4))
             self.footer_icon = size(_autolayout(AppKit.NSImageView.alloc().init()), 18, 18)
-            self.footer_icon.setImage_(AppKit.NSImage.imageWithSystemSymbolName_accessibilityDescription_('arrow.up.right.square', footer_label))
+            self.footer_icon.setImage_(symbols.image('arrow.up.right.square', footer_label))
             self.footer_icon.setContentTintColor_(theme.colour('ink_3'))
             self.footer_icon.setHidden_(True)
             footer.addSubview_(self.footer_icon)
