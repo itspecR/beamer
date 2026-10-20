@@ -35,6 +35,7 @@ setup(
         "key_codes",
         "keyboard_layout",
         "link_state",
+        "launch_agent",
         "login_item",
         "machines",
         "machines_panel",
