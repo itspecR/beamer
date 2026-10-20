@@ -34,6 +34,41 @@ class LoginItemTests(unittest.TestCase):
             login_item.open_system_settings()
         service.openSystemSettingsLoginItems.assert_called_once_with()
 
+    def test_without_app_service_the_launch_agent_is_used(self):
+        with patch.object(login_item, "SMAppService", None), \
+                patch.object(login_item.launch_agent, "install") as install, \
+                patch.object(login_item, "_bundle_path", return_value="/Applications/Beamer.app"):
+            login_item.set_enabled(True)
+        install.assert_called_once_with("/Applications/Beamer.app")
+
+    def test_without_app_service_turning_off_removes_the_agent(self):
+        with patch.object(login_item, "SMAppService", None), \
+                patch.object(login_item.launch_agent, "remove") as remove:
+            login_item.set_enabled(False)
+        remove.assert_called_once_with()
+
+    def test_with_app_service_the_launch_agent_is_left_alone(self):
+        service = Mock()
+        service.mainAppService.return_value.registerAndReturnError_.return_value = (True, None)
+        with patch.object(login_item, "SMAppService", service), \
+                patch.object(login_item.launch_agent, "install") as install:
+            login_item.set_enabled(True)
+        install.assert_not_called()
+        service.mainAppService.return_value.registerAndReturnError_.assert_called_once_with(None)
+
+    def test_launch_agent_status_follows_the_installed_bundle(self):
+        here = "/Applications/Beamer.app"
+        self.assertEqual(login_item.agent_status(None, here), login_item.NOT_REGISTERED)
+        self.assertEqual(login_item.agent_status(here, here), login_item.ENABLED)
+        self.assertEqual(login_item.agent_status("/Downloads/Beamer.app", here), login_item.NOT_FOUND)
+        self.assertEqual(login_item.agent_status("", here), login_item.NOT_FOUND)
+
+    def test_without_app_service_settings_open_users_and_groups(self):
+        with patch.object(login_item, "SMAppService", None), \
+                patch.object(login_item.subprocess, "run") as run:
+            login_item.open_system_settings()
+        run.assert_called_once_with(["/usr/bin/open", login_item.ACCOUNTS_PANE], check=True)
+
 
 if __name__ == "__main__":
     unittest.main()
