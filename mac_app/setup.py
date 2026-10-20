@@ -50,6 +50,7 @@ setup(
         "no_unlock",
         "qr",
         "settings_store",
+        "symbols",
         "theme",
         "tokens",
         "wake",

@@ -41,6 +41,7 @@ import ignored_titles
 import keyboard_layout
 import notch_beam
 import previews
+import symbols
 import diagram
 import ledger
 import motion
@@ -1368,9 +1369,10 @@ class ControlWindow(AppKit.NSObject):
         if width == getattr(self, "_last_resize_width", None):
             return
         self._last_resize_width = width
-        sidebar = 56 if width < 640 else 144 if width < 800 else 176
+        collapsed = width < 640 and symbols.available()
+        sidebar = 56 if collapsed else 144 if width < 800 else 176
         self.sidebar_width.setConstant_(sidebar)
-        self.sidebar.set_collapsed(width < 640)
+        self.sidebar.set_collapsed(collapsed)
         page_width = width - sidebar - 1 - 16
         self._apply_width(page_width)
         body_width = page_column_width(page_width)
