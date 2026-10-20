@@ -16,6 +16,7 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 APP="$SCRIPT_DIR/dist/Beamer.app"
 DMG="$SCRIPT_DIR/dist/Beamer.dmg"
 RELEASE=0
+MACOS_MINIMUM=10.15
 case "${1:-}" in
     "") ;;
     --release) RELEASE=1 ;;
@@ -71,7 +72,7 @@ rm -rf "$SCRIPT_DIR/build" "$SCRIPT_DIR/dist"
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python3 -B setup.py py2app
 
 PY2APP_DIR="$(.venv/bin/python3 -c 'from pathlib import Path; import py2app; print(Path(py2app.__file__).parent)')"
-clang -O2 -arch arm64 -arch x86_64 -mmacosx-version-min=13.0 "$PY2APP_DIR/apptemplate/src/main.c" -framework Cocoa -o "$APP/Contents/MacOS/Beamer"
+clang -O2 -arch arm64 -arch x86_64 -mmacosx-version-min="$MACOS_MINIMUM" "$PY2APP_DIR/apptemplate/src/main.c" -framework Cocoa -o "$APP/Contents/MacOS/Beamer"
 
 # cffi ships no universal2 wheel, so the extension pip installed for this Mac is single-architecture.
 # The other half comes from cffi's own wheel for the other architecture, and lipo fuses the two.

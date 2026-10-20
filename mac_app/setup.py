@@ -13,6 +13,7 @@ VERSION = (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip
 # 1.5.0-beta.1 carries its release number there; the bundled VERSION file says beta to the user.
 PLIST_VERSION = VERSION.split("-")[0]
 BUILD = os.environ.get("BEAMER_BUILD", "1")
+MACOS_MINIMUM = "10.15"
 
 
 setup(
@@ -91,7 +92,7 @@ setup(
                 "CFBundleName": "Beamer",
                 "CFBundleShortVersionString": PLIST_VERSION,
                 "CFBundleVersion": BUILD,
-                "LSMinimumSystemVersion": "13.0",
+                "LSMinimumSystemVersion": MACOS_MINIMUM,
                 "LSUIElement": False,
                 "NSHighResolutionCapable": True,
                 "NSPrincipalClass": "NSApplication",
