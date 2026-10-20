@@ -10,7 +10,7 @@ import objc, AppKit, Foundation, Quartz, ApplicationServices, CoreFoundation as 
 import bridge, clipboard_mac, config, crossing, gestures, key_codes, link_state, media_keys
 import notch_beam, notch_island, pages, pointer_hide, previews, settings_store, theme, tokens
 from core import pairing, protocol
-import wake, widgets
+import listen_access, wake, widgets
 
 assert ".app/" in bridge.__file__, bridge.__file__
 
@@ -47,5 +47,7 @@ timer = CF.CFRunLoopTimerCreate(None, CF.CFAbsoluteTimeGetCurrent(), 0, 0, 0, la
 CF.CFRunLoopAddTimer(CF.CFRunLoopGetCurrent(), timer, CF.kCFRunLoopDefaultMode)
 CF.CFRunLoopRunInMode(CF.kCFRunLoopDefaultMode, 0.3, False)
 assert fired
+
+assert isinstance(listen_access.granted(), bool)
 
 print(f"Hardened runtime probe passed under {sys.executable}")
