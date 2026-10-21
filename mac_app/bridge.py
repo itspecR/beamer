@@ -3,7 +3,6 @@ import copy
 import errno
 import inspect
 import logging
-import platform
 import queue
 import socket
 import sys
@@ -23,6 +22,7 @@ import config as config_module
 import crossing
 import desktop_mac
 from input_injector_mac import INJECTED_MARK
+import macos_version
 import gestures
 from core import idle_pointer
 from core import ignored
@@ -398,10 +398,7 @@ def _macos_major():
     """The running macOS major version, which keys the DockControl sign
     table in gestures.py. Falls back to the newest measured version when
     the string cannot be read, which is what the table does anyway."""
-    try:
-        return int(platform.mac_ver()[0].split(".")[0])
-    except (ValueError, IndexError):
-        return 26
+    return macos_version.major(default=26)
 
 
 def _default_gesture_event_converter(cg_event):
