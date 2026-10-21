@@ -25,6 +25,8 @@ import unicodedata
 from typing import Dict, List, Optional, Set, Tuple
 
 import keyboard_layout
+import macos_version
+import main_thread
 from key_codes import KEY_NAME_TO_CODE, US_KEY_CODES
 
 try:
@@ -135,6 +137,25 @@ _scroll_remainders: Dict[str, List[float]] = {"line": [0.0, 0.0], "pixel": [0.0,
 # thread injecting while a reconnect's release_all snapshots and clears would
 # otherwise press a key that nothing then remembers to release.
 _state_lock = threading.RLock()
+
+
+FIRST_MACOS_WITH_KEY_EVENTS_OFF_MAIN_THREAD = 13
+
+
+def keyboard_events_need_main_thread(major):
+    return major is not None and major < FIRST_MACOS_WITH_KEY_EVENTS_OFF_MAIN_THREAD
+
+
+_KEY_EVENTS_ON_MAIN_THREAD = keyboard_events_need_main_thread(macos_version.major())
+
+
+def _keyboard_event(code, down):
+    quartz = _require()
+
+    def create():
+        return quartz.CGEventCreateKeyboardEvent(None, code, bool(down))
+
+    return main_thread.run(create) if _KEY_EVENTS_ON_MAIN_THREAD else create()
 
 
 def _locked(function):
@@ -277,7 +298,7 @@ def _inject_browser_key(character: str) -> None:
     code = US_KEY_CODES[character]
     flags = current_flags(_mods_down) | quartz.kCGEventFlagMaskCommand
     for down in (True, False):
-        event = quartz.CGEventCreateKeyboardEvent(None, code, down)
+        event = _keyboard_event(code, down)
         if event is None:
             raise RuntimeError(f"CGEventCreateKeyboardEvent failed for {character!r}")
         quartz.CGEventSetFlags(event, flags)
@@ -293,7 +314,7 @@ def _inject_shortcut(modifier: str, key: str) -> None:
     steps = ((modifier_code, True, held_with_modifier), (key_code, True, held_with_modifier),
              (key_code, False, held_with_modifier), (modifier_code, False, held))
     for code, down, flags in steps:
-        event = quartz.CGEventCreateKeyboardEvent(None, code, down)
+        event = _keyboard_event(code, down)
         if event is None:
             raise RuntimeError(f"CGEventCreateKeyboardEvent failed for {key!r}")
         quartz.CGEventSetFlags(event, flags)
@@ -322,7 +343,7 @@ def inject_key(name: str, down: bool, us: Optional[str] = None) -> None:
     if plan is None:
         return
     key_code, text = plan
-    event = quartz.CGEventCreateKeyboardEvent(None, key_code, bool(down))
+    event = _keyboard_event(key_code, down)
     if event is None:
         raise RuntimeError(f"CGEventCreateKeyboardEvent failed for {name!r}")
     if text is None:
@@ -418,7 +439,7 @@ def inject_text(text: str) -> None:
     quartz = _require()
     for chunk in text_chunks(text):
         for down in (True, False):
-            event = quartz.CGEventCreateKeyboardEvent(None, 0, down)
+            event = _keyboard_event(0, down)
             if event is None:
                 raise RuntimeError("CGEventCreateKeyboardEvent failed for text")
             quartz.CGEventKeyboardSetUnicodeString(event, len(chunk.encode("utf-16-le")) // 2, chunk)

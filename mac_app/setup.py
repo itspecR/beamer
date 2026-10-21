@@ -39,6 +39,8 @@ setup(
         "listen_access",
         "launch_agent",
         "login_item",
+        "macos_version",
+        "main_thread",
         "machines",
         "machines_panel",
         "media_keys",
